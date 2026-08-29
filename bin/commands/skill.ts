@@ -22,6 +22,10 @@ const KNOWN_SKILLS: Record<string, { dir: string; description: string }> = {
     dir: "ima2-uiux",
     description: "Design direction discovery, UX judgment, image-first ism workflow",
   },
+  "smooth-bg": {
+    dir: "smooth-bg",
+    description: "Ultra-smooth background remover and anti-aliased transparent asset extractor",
+  },
 };
 
 const HELP = `
