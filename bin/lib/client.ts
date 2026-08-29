@@ -1,0 +1,178 @@
+import { readFileSync, existsSync } from "node:fs";
+import { join } from "node:path";
+import { homedir } from "node:os";
+
+export const DEFAULT_PORT = 3333;
+
+function readAdvertise() {
+  const p = process.env.IMA2_ADVERTISE_FILE ||
+    join(process.env.IMA2_CONFIG_DIR || join(homedir(), ".ima2"), "server.json");
+  if (!existsSync(p)) return null;
+  try {
+    return JSON.parse(readFileSync(p, "utf-8"));
+  } catch {
+    return null;
+  }
+}
+
+export interface ServerHealth {
+  ok?: boolean;
+  version?: string;
+  pid?: number;
+  [key: string]: unknown;
+}
+
+async function probe(base: string, timeoutMs = 600): Promise<ServerHealth | null> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const r = await fetch(`${base}/api/health`, {
+      signal: controller.signal,
+      // CLI is short-lived: close the socket so process.exit() never races a
+      // keep-alive handle (libuv UV_HANDLE_CLOSING assert on Windows, 260719).
+      headers: { connection: "close" },
+    });
+    if (!r.ok) return null;
+    return (await r.json()) as ServerHealth;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+export async function findRunningServer({ includeEnv = true }: { includeEnv?: boolean } = {}) {
+  const candidates: string[] = [];
+  if (includeEnv && process.env.IMA2_SERVER) candidates.push(process.env.IMA2_SERVER.replace(/\/$/, ""));
+  const adv = readAdvertise();
+  if (adv?.backend?.url) candidates.push(String(adv.backend.url).replace(/\/$/, ""));
+  if (adv?.url) candidates.push(String(adv.url).replace(/\/$/, ""));
+  if (adv?.port) candidates.push(`http://localhost:${adv.port}`);
+  candidates.push(`http://localhost:${DEFAULT_PORT}`);
+
+  const seen = new Set<string>();
+  const uniq = candidates.filter((c) => !seen.has(c) && seen.add(c));
+
+  for (const base of uniq) {
+    const health = await probe(base);
+    if (health) return { base, health };
+  }
+  return null;
+}
+
+export async function resolveServer({ serverFlag }: any = {}) {
+  if (serverFlag) {
+    const base = serverFlag.replace(/\/$/, "");
+    const health = await probe(base);
+    if (health) return { base, health };
+    const err: any = new Error(`server unreachable at ${base}`);
+    err.code = "SERVER_UNREACHABLE";
+    throw err;
+  }
+  const found = await findRunningServer();
+  if (found) return found;
+  const err: any = new Error("server unreachable — is 'ima2 serve' running?");
+  err.code = "SERVER_UNREACHABLE";
+  throw err;
+}
+
+export async function request(base: string, path: string, {
+  method = "GET",
+  body,
+  headers: extraHeaders,
+  raw = false,
+  timeoutMs = 180_000,
+}: any = {}) {
+  const baseHeaders: Record<string, string> = raw
+    ? { "X-ima2-client": `cli/${CLI_VERSION}` }
+    : { "Content-Type": "application/json", "X-ima2-client": `cli/${CLI_VERSION}` };
+  const finalHeaders = { ...baseHeaders, ...(extraHeaders || {}) };
+  // Manual timeout + clearTimeout: a lingering AbortSignal.timeout handle
+  // crashes process.exit() on Windows Node 24 (UV_HANDLE_CLOSING, 260719).
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  let res: Response;
+  let text: string;
+  try {
+    res = await fetch(base + path, {
+      method,
+      // connection: close — see the health-check note above.
+      headers: { connection: "close", ...finalHeaders },
+      body: body === undefined ? undefined
+          : raw ? body
+          : JSON.stringify(body),
+      signal: controller.signal,
+    });
+    text = await res.text();
+  } finally {
+    clearTimeout(timer);
+  }
+  let json: any = null;
+  try { json = JSON.parse(text!); } catch {}
+  if (!res.ok) {
+    const err: any = new Error(json?.error?.message || json?.error || `HTTP ${res.status}`);
+    err.status = res.status;
+    err.code = json?.error?.code || json?.code || null;
+    err.body = json || text;
+    throw err;
+  }
+  return json;
+}
+
+export interface CliHistoryItem {
+  filename: string;
+  url?: string;
+  createdAt?: string;
+  [key: string]: unknown;
+}
+
+export async function resolveLastHistoryItem(base: string): Promise<CliHistoryItem> {
+  const response = await request(base, "/api/history?limit=1");
+  const item = Array.isArray(response?.items) ? response.items[0] : undefined;
+  if (!item || typeof item.filename !== "string" || !item.filename) {
+    const error = new Error("no history image available for @last") as Error & { code: string };
+    error.code = "HISTORY_EMPTY";
+    throw error;
+  }
+  return item as CliHistoryItem;
+}
+
+export async function resolveHistoryReference(base: string, value: string): Promise<string> {
+  if (value !== "@last") return value;
+  return (await resolveLastHistoryItem(base)).filename;
+}
+
+interface RawImageItem {
+  image?: string;
+  filename?: string | null;
+}
+interface RawGenerateResponse {
+  image?: string;
+  images?: RawImageItem[];
+  filename?: string | null;
+  elapsed?: number | string | null;
+  requestId?: string | null;
+  [key: string]: unknown;
+}
+
+export function normalizeGenerate(resp: RawGenerateResponse | null | undefined) {
+  if (!resp) return { images: [], elapsed: null, requestId: null };
+  if (Array.isArray(resp.images)) {
+    return {
+      images: resp.images.map((it: RawImageItem) => ({ image: it.image, filename: it.filename })),
+      elapsed: resp.elapsed ?? null,
+      requestId: resp.requestId ?? null,
+    };
+  }
+  if (resp.image) {
+    return {
+      images: [{ image: resp.image, filename: resp.filename || null }],
+      elapsed: resp.elapsed ?? null,
+      requestId: resp.requestId ?? null,
+    };
+  }
+  return { images: [], elapsed: resp.elapsed ?? null, requestId: resp.requestId ?? null };
+}
+
+export let CLI_VERSION = "dev";
+export function setCliVersion(v: string) { CLI_VERSION = v; }

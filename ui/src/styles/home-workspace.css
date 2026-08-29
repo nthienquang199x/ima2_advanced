@@ -1,0 +1,413 @@
+.app[data-ui-mode="home"] {
+  grid-template-columns: var(--nav-rail-w) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+.app[data-ui-mode="home"] > .sidebar { display: none; }
+
+/* Hero -------------------------------------------------------------------
+   The wordmark is a background layer, not a headline. It carries the brand
+   at a size the composer never has to compete with, and everything readable
+   sits above it. Sized so the composer still opens inside the first screen.
+*/
+.home-hero {
+  position: relative;
+  isolation: isolate;
+  padding: clamp(12px, 2vh, 24px) 0 clamp(12px, 1.8vh, 20px);
+}
+
+.home-hero__mark {
+  position: absolute;
+  z-index: -1;
+  top: clamp(-12px, -1vh, -4px);
+  left: -0.06em;
+  right: 0;
+  font: 700 clamp(84px, 13vw, 176px) / 0.78 var(--font-display);
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(244, 244, 246, 0.13);
+  white-space: nowrap;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+.home-hero__intro {
+  position: relative;
+  max-width: 30ch;
+}
+
+.home-hero__title {
+  margin: 0;
+  font: 700 clamp(24px, 2.8vw, 34px) / 1.08 var(--font-display);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  word-break: keep-all;
+  color: var(--text);
+}
+
+.home-hero__lede {
+  margin: 10px 0 0;
+  max-width: 52ch;
+  font-size: 15px;
+  line-height: 1.55;
+  text-wrap: balance;
+  /* Korean breaks mid-word without this: "합니 / 다." reads as a typo. */
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  color: var(--text-dim);
+}
+
+.home-hero__readiness {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding: 5px 11px 5px 9px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--control-bg);
+  color: var(--text-muted);
+  font: 500 11px/1 var(--mono);
+  letter-spacing: 0.04em;
+}
+
+.home-hero__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-faint);
+}
+
+.home-hero__dot.is-ready { background: var(--green); }
+
+.home-workspace__composer { margin-top: 20px; }
+
+/* Mode roster ------------------------------------------------------------
+   An index of destinations, not a feature grid. Rows rather than equal cards
+   so it never reads as the primary action; Generate keeps that role.
+*/
+.home-modes {
+  display: grid;
+  margin-top: 56px;
+  border-top: 1px solid var(--border);
+}
+
+.home-modes__title {
+  margin: 0;
+  padding: 18px 4px 10px;
+  color: var(--text-muted);
+  font: 500 11px/1 var(--mono) !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-modes__item {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 8rem) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 15px 4px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: none;
+  color: var(--text-dim);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease, padding-left 160ms ease;
+}
+
+.home-modes__item:hover {
+  padding-left: 10px;
+  background: var(--control-bg);
+  color: var(--text);
+}
+
+.home-modes__item:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+.home-modes__label {
+  font: 600 14px/1.2 var(--font-display);
+  color: var(--text);
+}
+
+.home-modes__icon {
+  display: grid;
+  place-items: center;
+  color: var(--text-dim);
+}
+
+.home-modes__hint {
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  word-break: keep-all;
+  color: var(--text-muted);
+}
+
+.home-hero__mode-arrow {
+  align-self: center;
+  color: var(--text-faint);
+  transition: transform 160ms ease, color 160ms ease;
+}
+
+.home-modes__item:hover .home-hero__mode-arrow {
+  transform: translateX(3px);
+  color: var(--text-dim);
+}
+
+
+.home-workspace {
+  grid-column: 2;
+  grid-row: 1;
+  width: 100%;
+  min-height: 0;
+  height: 100dvh;
+  overflow-y: auto;
+  padding: clamp(32px, 5vw, 72px) clamp(20px, 4vw, 48px) 72px;
+  color: var(--text);
+  font-family: var(--font);
+}
+
+.home-workspace__inner {
+  width: min(100%, 1000px);
+  margin-inline: auto;
+}
+
+.home-workspace__hero {
+  width: min(100%, 920px);
+  margin-inline: auto;
+}
+
+.home-workspace__recent { margin-top: 32px; }
+
+.home-workspace h2 {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2.5vw, 26px);
+  font-weight: 600;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.home-workspace__recent > h2 { margin-bottom: 18px; }
+
+.home-recent-empty {
+  margin: 0;
+  padding: 16px 18px;
+  border: 1px solid var(--glass-line, var(--border));
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text-muted);
+  line-height: 1.5;
+  text-wrap: balance;
+}
+
+.home-prompt {
+  padding: clamp(20px, 3vw, 32px);
+  border: 1px solid var(--glass-line, var(--border));
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--surface, var(--surface)) 86%, transparent);
+  box-shadow: 0 24px 64px var(--shadow-soft);
+  backdrop-filter: blur(12px);
+}
+
+.home-prompt__chips { margin-bottom: 16px; }
+
+.home-prompt__reference-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin-bottom: 12px;
+}
+
+.home-prompt__reference-thumbs {
+  display: flex;
+  min-width: 0;
+  max-width: min(50%, 240px);
+  gap: 4px;
+  overflow: hidden;
+}
+
+.home-prompt__reference-thumb {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font: 600 12px/1 var(--mono);
+}
+
+.home-prompt__reference-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-prompt__reference-count {
+  flex: 0 0 auto;
+  color: var(--text-muted);
+  font: 600 11px/1 var(--mono);
+}
+
+.home-prompt__label {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-prompt__textarea {
+  display: block;
+  width: 100%;
+  min-height: 168px;
+  resize: vertical;
+  border: 1px solid var(--border-strong, var(--border));
+  border-radius: 14px;
+  padding: 18px 20px;
+  background: color-mix(in srgb, var(--surface-2, var(--surface-2)) 88%, transparent);
+  color: var(--text, var(--text-primary));
+  font: 500 18px/1.6 var(--font);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.home-prompt__textarea::placeholder { color: var(--text-faint, var(--text-muted)); }
+.home-prompt__textarea:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.home-prompt__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.home-prompt__provider {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 140px;
+  color: var(--text-muted);
+  font: 500 12px/1 var(--mono);
+}
+
+.home-prompt__generate {
+  min-width: 168px;
+  min-height: 50px;
+  border: 0;
+  border-radius: 12px;
+  padding: 0 28px;
+  background: var(--accent);
+  color: var(--accent-ink, var(--bg));
+  font: 700 15px/1 var(--font);
+  cursor: pointer;
+  transition: transform 160ms ease, opacity 160ms ease;
+}
+
+.home-prompt__generate:hover:not(:disabled) { transform: translateY(-2px); }
+.home-prompt__generate:disabled { cursor: not-allowed; opacity: 0.4; }
+
+.home-recent-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(116px, 1fr);
+  gap: 12px;
+  min-height: 300px;
+}
+
+.home-recent-card {
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--glass-line, var(--border));
+  transition: transform 160ms ease, border-color 160ms ease;
+}
+
+.home-recent-card.is-featured { grid-row: span 2; }
+
+.home-recent-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+.home-recent-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-recent-card__fallback {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  min-height: 116px;
+  place-items: center;
+  padding: 16px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  text-align: center;
+  font: 400 13px/1.4 var(--font);
+}
+
+@media (max-width: 768px) {
+  .home-workspace { padding: 28px 20px 56px; }
+  .home-hero { padding: 20px 0 18px; }
+  .home-hero__mark { font-size: clamp(84px, 22vw, 150px); }
+  .home-recent-row { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
+  .home-modes { margin-top: 40px; }
+  .home-modes__item { grid-template-columns: 24px minmax(0, 6.5rem) minmax(0, 1fr) auto; gap: 12px; }
+}
+
+@media (max-width: 480px) {
+  .home-workspace { padding: 20px 14px calc(44px + env(safe-area-inset-bottom)); }
+  .home-prompt { padding: 16px; border-radius: 16px; }
+  .home-prompt__textarea { min-height: 144px; padding: 14px; font-size: 16px; }
+  .home-prompt__footer { align-items: stretch; flex-direction: column; }
+  .home-prompt__generate { width: 100%; min-height: 52px; }
+  .home-recent-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: minmax(108px, 1fr);
+  }
+  .home-recent-card.is-featured {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    min-height: 220px;
+  }
+
+  /* The hero shrinks so the composer stays inside the first screen on a
+     390x844 phone; the wordmark keeps the frame without owning it. */
+  .home-hero { padding: 14px 0 14px; }
+  .home-hero__mark { top: -2px; font-size: clamp(64px, 26vw, 104px); }
+  .home-hero__title { font-size: clamp(26px, 8vw, 32px); }
+  .home-hero__lede { margin-top: 8px; font-size: 14px; }
+  .home-hero__readiness { margin-top: 12px; }
+  .home-modes__item { grid-template-columns: 22px minmax(0, 1fr) auto; row-gap: 3px; }
+  .home-modes__hint { grid-column: 2 / -1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-prompt__generate { transition: none; }
+  .home-prompt__generate:hover:not(:disabled) { transform: none; }
+  .home-modes__item { transition: none; }
+  .home-modes__item:hover { padding-left: 4px; }
+  .home-hero__mode-arrow { transition: none; }
+  .home-modes__item:hover .home-hero__mode-arrow { transform: none; }
+}

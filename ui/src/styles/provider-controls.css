@@ -1,0 +1,237 @@
+/* 060 — Variant D provider dropdown (replaces the 3-column grid). */
+.provider-status-select {
+  display: grid;
+  gap: 8px;
+}
+
+.provider-status-select .ctl-select__trigger {
+  width: 100%;
+  min-height: 44px;
+}
+
+.provider-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.provider-status-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.provider-status-line__value {
+  color: var(--text);
+}
+
+.provider-status-line[data-tone="ok"] .provider-status-line__value {
+  color: var(--green);
+}
+
+.provider-status-line[data-tone="warn"] .provider-status-line__value {
+  color: var(--amber, #d9a12e);
+}
+
+.provider-status-line[data-tone="bad"] .provider-status-line__value {
+  color: var(--red);
+}
+
+.provider-auth-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-self: start;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.provider-auth-chip__state {
+  color: var(--text-dim);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  display: inline-flex;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.status-dot--ok {
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+}
+
+.status-dot--bad {
+  background: var(--red);
+  box-shadow: 0 0 6px var(--red);
+}
+
+/* Warn tone shared by MCP/auth states (moved from the retired status strip,
+   060 audit A4). */
+.status-dot--warn {
+  background: var(--amber, #d9a12e);
+  box-shadow: 0 0 6px var(--amber, #d9a12e);
+}
+
+.provider-helper {
+  margin: -4px 0 0;
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.provider-compat-note {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--text-dim);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.provider-compat-note strong {
+  color: var(--text);
+  font-size: 12px;
+}
+
+.provider-compat-details {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--text-dim);
+  font-size: 12px;
+  line-height: 1.4;
+  padding: 0;
+}
+
+.provider-compat-details summary {
+  padding: 8px 12px;
+  cursor: pointer;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 12px;
+  list-style: none;
+}
+
+.provider-compat-details summary::before {
+  content: "▸ ";
+}
+
+.provider-compat-details[open] summary::before {
+  content: "▾ ";
+}
+
+.provider-compat-details p {
+  padding: 0 12px 8px;
+  margin: 0;
+}
+
+.gemini-resolution-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.gemini-resolution-grid .option-btn {
+  min-height: 46px;
+  padding: 6px 4px;
+}
+
+.gemini-resolution-grid small {
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+/* NovelAI lane: a settings panel of ten controls needs one rhythm, not ten
+   bespoke rows. Label / control on a shared grid, sliders with a live readout. */
+.nai-controls__row {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.nai-controls__row--slider {
+  grid-template-columns: 96px 1fr 38px;
+}
+
+.nai-controls__row--slider input[type="range"] {
+  width: 100%;
+}
+
+.nai-controls__row--slider output {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--text);
+}
+
+.nai-controls__row--toggle {
+  grid-template-columns: auto 1fr;
+  cursor: pointer;
+}
+
+/* The undesired-content prompt is secondary to the positive prompt and must
+   not compete for vertical space until it is being used. */
+.negative-prompt {
+  margin-top: 6px;
+}
+
+.negative-prompt__label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.negative-prompt__textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 12px;
+  font-family: inherit;
+  line-height: 1.4;
+  transition: min-height 120ms ease;
+}
+
+.negative-prompt__textarea--expanded {
+  min-height: 4.5rem;
+}
+
+.negative-prompt__textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.negative-prompt__hint {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: var(--text-muted);
+}

@@ -1,0 +1,4 @@
+gemini_webapi>=1.10
+fastapi>=0.110
+uvicorn[standard]>=0.29
+mcp[cli]>=2.0
